@@ -1,7 +1,9 @@
 <template>
     <div>
-        <div class="dotted_line">
-            <h3>dddd</h3>
+        <div class="dotted_line pa-2">
+            <v-btn text fab>
+                <v-icon>mdi-arrow-left</v-icon>
+            </v-btn>
         </div>
 
         <div class="pa-3 row">
@@ -57,7 +59,8 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang='scss' scoped>
+
     .dotted_line {
         border-bottom: dotted 1px #000;
     }

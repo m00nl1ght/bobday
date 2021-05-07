@@ -1,5 +1,5 @@
 <template>
-    <v-form class="form">
+    <v-form class="form" @submit.prevent="onSubmit()">
         <v-row>
             <v-col cols="4">
                 <v-subheader>Вопрос:</v-subheader>
@@ -11,6 +11,7 @@
                     clearable
                     outlined
                     dense
+                    hide-details="true"
                 ></v-text-field>
             </v-col>
         </v-row>
@@ -28,23 +29,89 @@
                     v-model="typeSelected"
                     outlined
                     dense
+                    hide-details="true"
                 ></v-select>
             </v-col>
+        </v-row>
+
+        <ModalQuestionRow 
+            v-for="(item, index) in countRowNewQuestion" :key="index"
+            :index="index"
+            :value="item"
+            :type="typeSelected"
+            @onDelete="onDelete"
+        />
+
+        <v-row>
+            <v-btn 
+                fab 
+                color="#d32f2f" 
+                class="white--text mt-4"
+                @click="addRow()"
+            ><v-icon>mdi-plus</v-icon></v-btn>
+        </v-row>
+
+        <v-row>
+            <v-btn type="submit" color="#d32f2f" class="white--text mx-auto">Готово</v-btn>
         </v-row>
     </v-form>
 </template>
 
 <script>
+import ModalQuestionRow from '@/components/question/items/ModalQuestionRow'
+
 export default {
+    components: {
+        ModalQuestionRow
+    },
+
     data: () => ({
         question: '',
 
-        typeSelected:{ value: 'single', title: 'Один верный' },
         type: [
             { value: 'single', title: 'Один верный' },
             { value: 'multiple', title: 'Множественный выбор' }
         ]
-    })
+    }),
+
+    computed: {
+        countRowNewQuestion() {
+            return this.$store.getters['questions/countRowNewQuestion']
+        },
+
+        typeSelected: {
+            get() {
+                return this.$store.getters['questions/getType']
+            },
+            set(value) {
+                this.$store.commit('questions/setType', value)
+            }
+        }
+    },
+
+    methods: {
+        onSubmit() {
+            this.$store.dispatch('questions/addNew', {
+                title: this.question,
+            })
+            .then(res => {
+                if(res == 'success') {
+                    this.$store.commit('questions/clearNewQuestion')
+                    this.question = ''
+
+                    this.$emit('onClose')
+                }
+            })
+        },
+
+        onDelete(index) {
+            this.$store.dispatch('questions/deleteRow', index)
+        },
+
+        addRow() {
+            this.$store.dispatch('questions/addRow')
+        },
+    }
 }
 </script>
 
