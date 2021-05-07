@@ -7,7 +7,7 @@
 
             <v-col cols="8">
                 <v-text-field
-                    v-model="question"
+                    v-model="questionTitle"
                     clearable
                     outlined
                     dense
@@ -66,8 +66,6 @@ export default {
     },
 
     data: () => ({
-        question: '',
-
         type: [
             { value: 'single', title: 'Один верный' },
             { value: 'multiple', title: 'Множественный выбор' }
@@ -86,18 +84,24 @@ export default {
             set(value) {
                 this.$store.commit('questions/setType', value)
             }
+        },
+
+        questionTitle: {
+            get() {
+                return this.$store.getters['questions/getQuestionTitle']
+            },
+            set(value) {
+                this.$store.commit('questions/setQuestionTitle', value)
+            }
         }
     },
 
     methods: {
         onSubmit() {
-            this.$store.dispatch('questions/addNew', {
-                title: this.question,
-            })
+            this.$store.dispatch('questions/addNew')
             .then(res => {
                 if(res == 'success') {
                     this.$store.commit('questions/clearNewQuestion')
-                    this.question = ''
 
                     this.$emit('onClose')
                 }

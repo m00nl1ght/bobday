@@ -1,4 +1,3 @@
-import { resolve } from "core-js/fn/promise"
 
 // initial state
 const state = () => ({
@@ -19,7 +18,7 @@ const state = () => ({
             title: 'Заголовок вопроса 2',
             type: 'single',
             answers: [
-                { title: 'Вопрос1', checked: true },
+                { title: 'Вопрос1', checked: false },
                 { title: 'Вопрос2', checked: false },
                 { title: 'Вопрос3', checked: false },
                 { title: 'Вопрос4', checked: true },
@@ -45,14 +44,16 @@ const state = () => ({
         { title: '', checked: false },
     ],
 
-    type: 'single'
+    type: 'single',
+    title: ''
 })
 
 // getters
 const getters = {
     getQuestions: state => state.questions,
     countRowNewQuestion: state => state.newQuestion,
-    getType: state => state.type
+    getType: state => state.type,
+    getQuestionTitle: state => state.title
 }
 // actions
 const actions = {
@@ -92,10 +93,10 @@ const actions = {
         }
     },
 
-    addNew(state, { title }) {
+    addNew(state) {
         return new Promise((resolve) => {
             let newItem = {
-                title,
+                title: state.state.title,
                 type: state.state.type,
                 id: Date.now(),
                 answers: state.state.newQuestion
@@ -109,7 +110,9 @@ const actions = {
     editQuestion(state, id) {
         return new Promise(resolve => {
             let item = state.state.questions.filter(i => i.id == id)
-            console.log(item)
+            state.commit('setNewQuestion', item[0].answers)
+            state.commit('setType', item[0].type)
+            state.commit('setQuestionTitle', item[0].title)
             resolve('success')
         })
     },
@@ -148,7 +151,11 @@ const mutations = {
 
     setType(state, value) {
         state.type = value
-    }
+    },
+
+    setQuestionTitle(state, value) {
+        state.title = value
+    },
 }
 
 export default {
