@@ -82,7 +82,7 @@ export default {
                 return this.$store.getters['questions/getType']
             },
             set(value) {
-                this.$store.commit('questions/setType', value)
+                this.$store.commit('questions/newQuestionProp', { type: value })
             }
         },
 
@@ -91,7 +91,7 @@ export default {
                 return this.$store.getters['questions/getQuestionTitle']
             },
             set(value) {
-                this.$store.commit('questions/setQuestionTitle', value)
+                this.$store.commit('questions/newQuestionProp', { title: value })
             }
         }
     },

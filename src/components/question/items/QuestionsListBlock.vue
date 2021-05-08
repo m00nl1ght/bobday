@@ -8,7 +8,7 @@
             <v-card>
                 <v-card-title class="justify-end dotted">
                     <v-btn 
-                        @click="() => this.dialog = false"
+                        @click="dialogClose"
                         icon
                     >
                         <v-icon>mdi-close</v-icon>
@@ -17,22 +17,24 @@
                 
                 <v-card-text>
                     <Modal 
-                        @onClose="() => this.dialog = false"
+                        @onClose="dialogClose"
                     />
                 </v-card-text>
             </v-card>
-
         </v-dialog>
    
         <QuestionListHeader 
             @onOpenModal="() => this.dialog = true"
+            @onDelete="onDeteleChecked"
+            v-model="checkAll" 
         />
 
         <v-divider />
 
         <QuestionList 
-            :value="questions"
+            :questions="questions"
             @onOpenModal="() => this.dialog = true"
+            v-model="checked"
         />
     </v-container>
 </template>
@@ -50,12 +52,46 @@ export default {
     },
 
     data: () => ({
-        dialog: false
+        dialog: false,
+        checkAll: false,
+        checked: []
     }),
+
+    methods: {
+        dialogClose() {
+            this.dialog = false
+            this.$store.commit('questions/clearNewQuestion')
+        },
+
+        getQuestionsAllId() {
+            let ids = []
+
+            this.questions.forEach(element => {
+                ids.push(element.id)
+            });
+
+            return ids
+        },
+
+        onDeteleChecked() {
+            this.$store.dispatch('questions/deleteChecked', this.checked)
+            this.checkAll = false
+        }
+    },
 
     computed: {
         questions() {
             return this.$store.getters['questions/getQuestions']
+        }
+    },
+
+    watch: {
+        checkAll: function(val) {
+            if(val) {
+                this.checked = this.getQuestionsAllId()
+            } else {
+                this.checked = []
+            }
         }
     }
 }

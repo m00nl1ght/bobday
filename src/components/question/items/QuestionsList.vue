@@ -1,9 +1,11 @@
 <template>
     <v-container>
-        <v-row v-for="item in value" :key="item.id">
+        <v-row v-for="item in questions" :key="item.id">
             <v-col cols="1" align-self="center">
                 <v-checkbox
-                    class="mx-2 align-center "
+                    class="mx-2 align-center"
+                    :value="item.id"
+                    v-model="checked"
                 ></v-checkbox>
             </v-col>
             <v-col cols="9" align-self="center">
@@ -31,7 +33,7 @@
 
 <script>
 export default {
-    props: ['value'],
+    props: ['questions', 'value'],
 
     methods: {
         onDelete(id) {
@@ -46,6 +48,17 @@ export default {
                     this.$emit('onOpenModal')
                 }
             })
+        }
+    },
+
+    computed: {
+        checked: {
+            get() {
+                return this.value;
+            },
+            set(value) {
+                this.$emit("input", value);
+            }
         }
     }
 }

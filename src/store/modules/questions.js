@@ -1,4 +1,3 @@
-
 // initial state
 const state = () => ({
     questions: [
@@ -44,16 +43,19 @@ const state = () => ({
         { title: '', checked: false },
     ],
 
-    type: 'single',
-    title: ''
+    newQuestionProp: {
+        type: 'single',
+        title: ''
+    }
+
 })
 
 // getters
 const getters = {
     getQuestions: state => state.questions,
     countRowNewQuestion: state => state.newQuestion,
-    getType: state => state.type,
-    getQuestionTitle: state => state.title
+    getType: state => state.newQuestionProp.type,
+    getQuestionTitle: state => state.newQuestionProp.title
 }
 // actions
 const actions = {
@@ -95,15 +97,28 @@ const actions = {
 
     addNew(state) {
         return new Promise((resolve) => {
-            let newItem = {
-                title: state.state.title,
-                type: state.state.type,
-                id: Date.now(),
-                answers: state.state.newQuestion
+            if(state.state.newQuestionProp.id) {
+                let newState = state.state.questions.filter(item => item.id != state.state.newQuestionProp.id)
+                let newItem = {
+                    title: state.state.newQuestionProp.title,
+                    type: state.state.newQuestionProp.type,
+                    id: state.state.newQuestionProp.id,
+                    answers: state.state.newQuestion
+                }
+
+                state.commit('addQuestions', [...newState, newItem])
+                resolve('success')
+            } else {
+                let newItem = {
+                    title: state.state.newQuestionProp.title,
+                    type: state.state.newQuestionProp.type,
+                    id: Date.now(),
+                    answers: state.state.newQuestion
+                }
+        
+                state.commit('addQuestions', [...state.state.questions, newItem])
+                resolve('success')
             }
-    
-            state.commit('addQuestions', [...state.state.questions, newItem])
-            resolve('success')
         })
     },
 
@@ -111,8 +126,12 @@ const actions = {
         return new Promise(resolve => {
             let item = state.state.questions.filter(i => i.id == id)
             state.commit('setNewQuestion', item[0].answers)
-            state.commit('setType', item[0].type)
-            state.commit('setQuestionTitle', item[0].title)
+            state.commit('newQuestionProp', {
+                type: item[0].type,
+                title: item[0].title,
+                id
+            })
+
             resolve('success')
         })
     },
@@ -122,6 +141,11 @@ const actions = {
             state.commit('addQuestions', state.state.questions.filter(item => item.id !== id))
             resolve('success')
         })
+    },
+
+    deleteChecked(state, checked) {
+        let notCheckedQuestions = state.state.questions.filter(item => checked.indexOf(item.id) == -1)
+        state.commit('addQuestions', notCheckedQuestions)
     }
 }
 
@@ -140,7 +164,11 @@ const mutations = {
     },
 
     clearNewQuestion(state) {
-        state.type ='single'
+        state.newQuestionProp = {
+        type: 'single',
+        title: ''
+        }
+
         state.newQuestion = [
             { title: '', checked: true},
             { title: '', checked: false},
@@ -149,12 +177,8 @@ const mutations = {
         ]
     },
 
-    setType(state, value) {
-        state.type = value
-    },
-
-    setQuestionTitle(state, value) {
-        state.title = value
+    newQuestionProp(state, value) {
+        state.newQuestionProp = {...state.newQuestionProp, ...value}
     },
 }
 
